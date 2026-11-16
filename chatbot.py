@@ -2,6 +2,7 @@
 from AugumentationAndGeneration import generate
 ## importing torch 
 import torch
+from dotenv import load_dotenv
 
 ## setting device agnostic code
 device="cuda" if torch.cuda.is_available() else "cpu"
@@ -33,8 +34,10 @@ model = AutoModelForCausalLM.from_pretrained(
     quantization_config=bnb_config ## it quantizes our model and makes it efficient for loading 
 )
 import weaviate
-weaviate_url = "guuazjoxsteurtnnrvgukw.c0.eu-central-1.aws.weaviate.cloud"
-weaviate_api_key = "VVViMHZlY1BWRlBXNDNpal96QVlBNHMxQ3pVZ1RZQU4wWk1UNk41ajhwMklJSldXc0R2QUtlUHBNM2RRPV92MjAw"
+import os
+load_dotenv
+weaviate_url=os.getenv('WEAVIATE_URL')
+weaviate_api_key=os.getenv('weaviate_api_key')
 
 # Connecting to Weaviate Cloud
 client = weaviate.connect_to_weaviate_cloud(
