@@ -16,8 +16,8 @@ embedding_model = SentenceTransformer("BAAI/bge-small-en-v1.5",device=device)
 import weaviate
 import os
 load_dotenv()
-weaviate_url = os.getenv('weaviate_url')
-weaviate_api_key =os.getenv('weaviate_api_key')
+weaviate_url = os.getenv('WEAVIATE_URL')
+weaviate_api_key =os.getenv('WEAVIATE_API_KEY')
 
 # Connect to Weaviate Cloud
 client = weaviate.connect_to_weaviate_cloud(

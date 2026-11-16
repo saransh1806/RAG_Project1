@@ -37,7 +37,7 @@ import weaviate
 import os
 load_dotenv()
 weaviate_url=os.getenv('WEAVIATE_URL')
-weaviate_api_key=os.getenv('weaviate_api_key')
+weaviate_api_key=os.getenv('WEAVIATE_API_KEY')
 
 # Connecting to Weaviate Cloud
 client = weaviate.connect_to_weaviate_cloud(
