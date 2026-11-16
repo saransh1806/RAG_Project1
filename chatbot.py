@@ -35,7 +35,7 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 import weaviate
 import os
-load_dotenv
+load_dotenv()
 weaviate_url=os.getenv('WEAVIATE_URL')
 weaviate_api_key=os.getenv('weaviate_api_key')
 
