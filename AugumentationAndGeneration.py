@@ -99,24 +99,38 @@ def generate(query,
              K=K,
              is_generate_summary=is_generate_summary)
     ## tokenize augumetned_prompt using hugging_face pretrained_tokenizer
-    inputs = tokenizer(
-            augumented_prompt,
-            return_tensors="pt"
-        ).to(model.device)
-    
-    ## generating text from inputs and using hugging_face pretrained_model 
-    outputs = model.generate(
-            **inputs,
-            max_new_tokens=512,
-            do_sample=False ## since it is an educational assistant we don't want it to be creative, just provide relevant information
-        )
-    ## getting input length 
-    input_length = inputs["input_ids"].shape[1]
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are an educational assistant for MIT 6.006. "
+                "Answer clearly in plain markdown. Do not use \\boxed{} or LaTeX "
+                "delimiters. Do not repeat yourself. Finish with a complete answer, then stop."
+            ),
+        },
+        {"role": "user", "content": augumented_prompt},
+    ]
 
-    ## decoding output after removing input part
+    text = tokenizer.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True
+    )
+
+    inputs = tokenizer(text, return_tensors="pt").to(model.device)
+
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=700,
+        do_sample=False,
+        repetition_penalty=1.1,
+        eos_token_id=tokenizer.eos_token_id,
+    )
+
+    input_length = inputs["input_ids"].shape[1]
     response = tokenizer.decode(
-            outputs[0][input_length:],
-            skip_special_tokens=True ## skipping special token
-        ).strip()
-    
+        outputs[0][input_length:],
+        skip_special_tokens=True
+    ).strip()
+
     return response

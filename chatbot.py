@@ -73,54 +73,50 @@ def print_response(response):
     s = f"{BOLD}{color}{response['role'].capitalize()}{RESET}: {response['content']}"
     print(s)
 
-## This function makes an active chatbot where user gives it query and our generate function
-## generates answer based on the query, print query and answer and finally  append the query
-## and generated text into context.The chatbot finally ends when query.lower()=='stop'.
-def chat(context,
-        model=model,
-        tokenizer=tokenizer,
-            hyde_model=model,
-            hyde_tokenizer=tokenizer,
-            embedding_model=embedding_model,
-            reranker=reranker,
-             collection=collection,
-             top_k_semantic_and_keyword=50,
-             top_k_from_combined_semantic_and_keyword=20,
-             final_top_k=5,
-             K=60,
-             is_generate_summary=False
-         ):
-    
-    # Start by printing the initial assistant prompt
-    print_response(context[-1])
-    
-    # Continues until the user types 'STOP'
-    while True:
-        query = input()
-        if query.lower() == 'stop':
-            break
+def answer_question(
+    query,
+    context=None,
+    top_k_semantic_and_keyword=50,
+    top_k_from_combined_semantic_and_keyword=20,
+    final_top_k=5,
+    K=60,
+    is_generate_summary=False
+):
+    """
+    Processes one user question using the existing RAG pipeline.
+    """
 
-        # Generate the response based on the user's prompt and existing context
-        response = generate(query,
-             model,
-             tokenizer,
-             hyde_model,
-             hyde_tokenizer,
-             embedding_model,
-             context,
-             collection,
-             reranker,
-             top_k_semantic_and_keyword=top_k_semantic_and_keyword,
-             top_k_from_combined_semantic_and_keyword=top_k_from_combined_semantic_and_keyword,
-             final_top_k=final_top_k,
-             K=K,
-             is_generate_summary=is_generate_summary)
-        # Append the user's prompt and the assistant's response to the context
-        context.append({"role": "user", "content": query})
-        context.append({"role": "assistant", "content": response})
+    if context is None:
+        context = []
 
-        # Print the most recent user output, followed by the assistant response
-        print_response(context[-2])
-        print_response(context[-1])
-    client.close()
+    # Add the current question to conversation history
+    context.append({
+        "role": "user",
+        "content": query
+    })
 
+    # Generate answer using the existing RAG pipeline
+    response = generate(
+        query,
+        model,
+        tokenizer,
+        model,
+        tokenizer,
+        embedding_model,
+        context,
+        collection,
+        reranker,
+        top_k_semantic_and_keyword=top_k_semantic_and_keyword,
+        top_k_from_combined_semantic_and_keyword=top_k_from_combined_semantic_and_keyword,
+        final_top_k=final_top_k,
+        K=K,
+        is_generate_summary=is_generate_summary
+    )
+
+    # Store the assistant response
+    context.append({
+        "role": "assistant",
+        "content": response
+    })
+
+    return response
