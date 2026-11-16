@@ -9,10 +9,6 @@ device="cuda" if torch.cuda.is_available() else "cpu"
 
 from transformers import BitsAndBytesConfig
 ## Quantizing our model
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True, ## loading our model into 4 bit  
-    bnb_4bit_compute_dtype=torch.float16
-)
 ## using BAAI as embedding model
 embedding_model_name="BAAI/bge-small-en-v1.5"
 from sentence_transformers import SentenceTransformer
@@ -23,15 +19,14 @@ embedding_model = SentenceTransformer("BAAI/bge-small-en-v1.5",device=device)
 from transformers import AutoTokenizer
 from transformers import AutoModelForCausalLM
 
-model_name="Qwen/Qwen2.5-7B-Instruct"
+model_name = "Qwen/Qwen2.5-1.5B-Instruct"
 ## getting pretrained tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 ## getting pretrained model
 ## we will use this model for generating text and creating hypothetical document which will save space of loading two different model or two instance of the model
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    device_map="auto",
-    quantization_config=bnb_config ## it quantizes our model and makes it efficient for loading 
+    device_map="auto"
 )
 import weaviate
 import os
